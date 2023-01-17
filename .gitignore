@@ -1,2 +1,9 @@
 t/*-extacl*.t
 t/10-stdacl.t
+Build
+MYMETA.json
+MYMETA.yml
+_build/
+blib/
+lib/Cisco/AccessList/Parser.output
+lib/Cisco/AccessList/Parser.pm
