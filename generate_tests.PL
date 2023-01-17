@@ -231,7 +231,7 @@ use Data::Dumper;
 use Cisco::AccessList::Parser;
 
 my $p = Cisco::AccessList::Parser->new();
-
+our $TODO;
 plan tests => 1 * blocks;
 
 sub check_acl {
@@ -243,7 +243,7 @@ sub check_acl {
     my $todo  = $block->todo();
 
 
-    my ($acl, $objgrp);
+    my ($acl, $objgrp, $errors);
 
     if($valid > 0) {
         my $str_hashref = YAML::XS::Load( $block->struct() );
@@ -273,7 +273,10 @@ sub check_acl {
         my $exist_err = shift @$msg_hashref;
 
         warnings_exist {
-            ( $acl, $objgrp ) = $p->parse( 'input' => $data );
+            ( $acl, $objgrp, $errors ) = $p->parse( 'input' => $data );
+            if (@$warnings) {
+                warn @$errors;
+            }
         } [$exist_err], $data;
 
 
