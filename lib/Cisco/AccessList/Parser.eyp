@@ -19,6 +19,8 @@ my $acl_table;
 my $curr_acl_name;
 my $objgrp_table;
 my $curr_objgrp_name;
+my $errors;
+my $warnings;
 %}
 
 %start expr
@@ -190,7 +192,7 @@ ip_proto: AHP    { $_[1]."(51)" }
                         return "($num)";
                     }
                     else {
-                        warn "WARNING: Protocol:$num is out-of-range (0-255)";
+                        push @$errors, "WARNING: Protocol:$num is out-of-range (0-255)";
                         return "($num)";
                     }
                 }
@@ -1207,18 +1209,18 @@ sub _yyerror {
     my @expected = $self->YYExpect();
 
     if ( defined($curr_acl_name) ) {
-        warn
+        push @$errors, 
             "WARNING: Syntax error in ACL:$curr_acl_name, near: >$what<.\n",
             "Expected one of these tokens: @expected\n";
 
         # delete last acl
         delete $acl_table->{$curr_acl_name};
+        return;
     }
-    else {
-        warn
-            "WARNING: Syntax error, near: >$what<.\n",
-            "Expected one of these tokens: @expected\n";
-    }
+
+    push @$errors, 
+        "WARNING: Syntax error, near: >$what<.\n",
+        "Expected one of these tokens: @expected\n";
     # print "Parse Error in $curr_acl_name, delete from list\n";
     # print Dumper $curr_acl_name, $acl_table;
 
@@ -1230,12 +1232,13 @@ sub parse {
     my %opts  = @_;
 
     $parse_debug = exists( $opts{'debug'} ) ? $opts{'debug'} : 0;
+    $acl_table    = {};
+    $objgrp_table = {};
+    $errors     = [];
 
     if ( exists( $opts{'input'} ) ) {
         $self->YYData->{INPUT} = $opts{'input'} . "\r";
 
-        $acl_table    = {};
-        $objgrp_table = {};
         eval {
             $self->YYParse(
                 yylex   => \&_yylex,
@@ -1243,16 +1246,16 @@ sub parse {
                 yydebug => $parse_debug,
             );
         };
-        # if ( $parse_debug > 0 ) {
-        #     print "\n## parse() debug\n";
-        #     print Dumper $acl_table, $objgrp_table;
-        # }
-    }
-    else {
-        warn "Warning: Not Specified Parser Input Data";
+
+        if ($@) {
+            push @$errors, $@;
+        }
+
+        return ( $acl_table, $objgrp_table, $errors );
     }
 
-    return ( $acl_table, $objgrp_table );
+    push @$errors, "Warning: Not Specified Parser Input Data";
+    return ( $acl_table, $objgrp_table, $errors );
 }
 
 ## lexer Checker
