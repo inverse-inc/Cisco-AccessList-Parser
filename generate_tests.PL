@@ -274,7 +274,7 @@ sub check_acl {
 
         warnings_exist {
             ( $acl, $objgrp, $errors ) = $p->parse( 'input' => $data );
-            if (@$warnings) {
+            if (@$errors) {
                 warn @$errors;
             }
         } [$exist_err], $data;
