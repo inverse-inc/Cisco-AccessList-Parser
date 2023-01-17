@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 use strict;
 use warnings;
 use Module::Build;
@@ -37,6 +39,7 @@ my $builder = Module::Build->new(
         'YAML::XS'   => 0.35,
         # 'Test::Most' => 0,
         'Test::More' => 0,
+        'Test::Perl::Critic' => 0,
         'Test::Base' => 0.60,
     },
     add_to_cleanup => ['Cisco-AccessList-Parser-*'],
