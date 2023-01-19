@@ -32,7 +32,7 @@ my $builder = Module::Build->new(
     requires           => {
         'Hash::Merge' => 0.12,
         'Regexp::Common' => 2011000000,
-        'Parse::Eyapp' => 1.181,
+        'Parse::Eyapp' => 1.21,
         'version'      => 0,
     },
     build_requires => {
